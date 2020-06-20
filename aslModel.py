@@ -11,8 +11,8 @@ import numpy as np
 class ASLModel(object):
 
     SIGN_LIST =['A', 'B', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
-                'R', 'S', 'T', 'C', 'U', 'V', 'W', 'X', 'Y',
-                'Z','D', 'E', 'F', 'G', 'H', 'I', 'J']
+                'R', 'S', 'T', 'C', 'U', 'V', 'W', 'Z', 'Y',
+                'X','D', 'E', 'F', 'G', 'H', 'I', 'J']
 
     def __init__(self, model_json_file, model_weights_file):
         # load model from JSON file
