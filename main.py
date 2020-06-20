@@ -6,19 +6,23 @@ Created on Mon Jun 15 20:13:49 2020
 """
 import numpy as np
 import cv2
+abc=0
 from aslModel import ASLModel
 import math
-
+col=(0,0,0)
+import statistics
 # Open Camera
 capture = cv2.VideoCapture(0)
-j=0
-model=ASLModel("model.json", "model_weights.h5")
+l=0
+buffer = [None] * 3
+model=ASLModel("model1.json", "model_weights1.h5")
 while capture.isOpened():
 
     # Capture frames from the camera
     ret, frame = capture.read()
+    frame_copy=frame.copy()
     # Get hand data from the rectangle sub window
-    cv2.rectangle(frame, (100, 100), (300, 300), (0, 255, 0), 0)
+    cv2.rectangle(frame, (100, 100), (300, 300),col,1)
     crop_image = frame[100:300, 100:300]
 
     # Apply Gaussian blur
@@ -57,17 +61,23 @@ while capture.isOpened():
         a=int(w2/2)        
         cx=x+int(w/2)
         cy=y+int(h/2)
-        crop3=frame[95+cy-a:100+cy+a,100+cx-a:100+cx+a]
+        crop3=frame_copy[95+cy-a:105+cy+a,95+cx-a:105+cx+a]
         crop3= cv2.cvtColor(crop3, cv2.COLOR_BGR2GRAY)
         _,crop3=cv2.threshold(crop3,127,255, cv2.THRESH_BINARY_INV)
         cv2.imshow('crop3',crop3)
         
-        crop3 = cv2.resize(crop3, (50,50), interpolation = cv2.INTER_AREA)
-        final1 = np.resize(crop3, (50,50, 1))
+        crop3 = cv2.resize(crop3, (256,256), interpolation = cv2.INTER_AREA)
+        final1 = np.resize(crop3, (256,256, 1))
         final = np.expand_dims(final1, axis=0)
-        print(final.shape)
-        res=model.predict(final)       
-        cv2.putText(frame, res, (300, 300), cv2.FONT_HERSHEY_COMPLEX, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
+        res=model.predict(final)
+        buffer[l]=res
+        l=l+1
+        if(l%3==0):
+            l=0
+            abc=statistics.mode(buffer)
+            buffer=[None] * 3
+        cv2.rectangle(frame,(100,75),(300,100),col,-1)
+        cv2.putText(frame,str(abc), (190, 95), cv2.FONT_HERSHEY_COMPLEX, .75, (0,255,0), lineType=cv2.LINE_AA)
         # Find convex hull
         hull = cv2.convexHull(contour)
         # Draw contour
